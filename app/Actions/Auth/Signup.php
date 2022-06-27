@@ -17,14 +17,19 @@ class Signup
     {
         $data = $request->validated();
         $phone = $this->formatePhoneNumber($data['phone']);
-        $traveler = $this->create($phone);
-
+        abort_if($this->phoneExists($phone), 422, 'Phone already exists');
+        $traveler = $this->create(['phone' => $phone]);
         return TravelerResource::make($traveler);
     }
 
-    public function create($data)
+    private function phoneExists($phone)
     {
-        return Traveler::create($data);
+        return Traveler::where('phone', $phone)->exists();
+    }
+
+    public function create(array $attributes)
+    {
+        return Traveler::create($attributes);
     }
 
     private function formatePhoneNumber($phone)
